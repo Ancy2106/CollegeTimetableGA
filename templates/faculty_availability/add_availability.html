@@ -1,0 +1,200 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="mb-4">
+
+    <h2>
+
+        <i class="bi bi-calendar-plus"></i>
+
+        Add Faculty Availability
+
+    </h2>
+
+    <p class="text-muted">
+
+        Set whether a faculty member is available during a particular time slot.
+
+    </p>
+
+</div>
+
+
+<!-- Flash Messages -->
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+
+{% if messages %}
+
+{% for category, message in messages %}
+
+<div class="alert alert-{{ category }} alert-dismissible fade show">
+
+    {{ message }}
+
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+
+</div>
+
+{% endfor %}
+
+{% endif %}
+
+{% endwith %}
+
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <form method="POST">
+
+
+            <!-- Faculty -->
+
+            <div class="mb-4">
+
+                <label class="form-label fw-bold">
+
+                    Faculty
+
+                </label>
+
+                <select name="faculty" class="form-select" required>
+
+                    <option value="">
+
+                        Select Faculty
+
+                    </option>
+
+                    {% for fac in faculty %}
+
+                    <option value="{{ fac.id }}">
+
+                        {{ fac.faculty_name }}
+
+                        {% if fac.faculty_code %}
+
+                        ({{ fac.faculty_code }})
+
+                        {% endif %}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- Time Slot -->
+
+            <div class="mb-4">
+
+                <label class="form-label fw-bold">
+
+                    Time Slot
+
+                </label>
+
+                <select name="timeslot" class="form-select" required>
+
+                    <option value="">
+
+                        Select Time Slot
+
+                    </option>
+
+                    {% for slot in timeslots %}
+
+                    <option value="{{ slot.id }}">
+
+                        {{ slot.day }}
+
+                        -
+
+                        Period {{ slot.period }}
+
+                        -
+
+                        {{ slot.start_time }}
+
+                        -
+
+                        {{ slot.end_time }}
+
+                        -
+
+                        {{ slot.session }}
+
+                    </option>
+
+                    {% endfor %}
+
+                </select>
+
+            </div>
+
+
+            <!-- Availability -->
+
+            <div class="mb-4">
+
+                <label class="form-label fw-bold">
+
+                    Availability
+
+                </label>
+
+                <select name="available" class="form-select" required>
+
+                    <option value="Yes">
+
+                        Available
+
+                    </option>
+
+                    <option value="No">
+
+                        Unavailable
+
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <!-- Buttons -->
+
+            <div>
+
+                <button type="submit" class="btn btn-success">
+
+                    <i class="bi bi-check-circle"></i>
+
+                    Save Availability
+
+                </button>
+
+
+                <a href="{{ url_for('availability.availability') }}" class="btn btn-secondary">
+
+                    <i class="bi bi-arrow-left"></i>
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

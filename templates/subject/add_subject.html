@@ -1,0 +1,116 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<h2>Add Subject</h2>
+
+<form method="POST">
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+
+            <label>Subject Code</label>
+
+            <input type="text" name="subject_code" class="form-control" required>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Subject Name</label>
+
+            <input type="text" name="subject_name" class="form-control" required>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Semester</label>
+
+            <input type="number" name="semester" class="form-control" min="1" max="8" required>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Hours Per Week</label>
+
+            <input type="number" name="hours_per_week" class="form-control" min="1" max="10" required>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Subject Type</label>
+
+            <select name="subject_type" class="form-control">
+
+                <option value="Theory">Theory</option>
+                <option value="Lab">Lab</option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Faculty</label>
+
+            <select name="faculty_id" class="form-control" required>
+
+                {% for f in faculty %}
+
+                <option value="{{ f.id }}">
+
+                    {{ f.faculty_name }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Department</label>
+
+            <select name="department_id" class="form-control" required>
+
+                {% for d in departments %}
+
+                <option value="{{ d.id }}">
+
+                    {{ d.department_name }}
+                    -
+                    Semester {{ d.semester }}
+                    -
+                    Section {{ d.section }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <button class="btn btn-primary">
+
+        Save Subject
+
+    </button>
+
+    <a href="/subjects" class="btn btn-secondary">
+
+        Cancel
+
+    </a>
+
+</form>
+
+{% endblock %}

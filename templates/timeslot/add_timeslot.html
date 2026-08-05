@@ -1,0 +1,95 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">
+
+    Add Time Slot
+
+</h2>
+
+<form method="POST">
+
+    <div class="row">
+
+        <div class="col-md-4 mb-3">
+
+            <label>Day</label>
+
+            <select name="day" class="form-select">
+
+                <option>Monday</option>
+                <option>Tuesday</option>
+                <option>Wednesday</option>
+                <option>Thursday</option>
+                <option>Friday</option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-4 mb-3">
+
+            <label>Period</label>
+
+            <select name="period" class="form-select">
+
+                <option>1</option>
+                <option>2</option>
+                <option>3</option>
+                <option>4</option>
+                <option>5</option>
+                <option>6</option>
+                <option>7</option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-4 mb-3">
+
+            <label>Session</label>
+
+            <select name="session" class="form-select">
+
+                <option>Morning</option>
+
+                <option>Afternoon</option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Start Time</label>
+
+            <input type="time" name="start_time" class="form-control" required>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>End Time</label>
+
+            <input type="time" name="end_time" class="form-control" required>
+
+        </div>
+
+    </div>
+
+    <button class="btn btn-success">
+
+        Save Time Slot
+
+    </button>
+
+    <a href="/timeslots" class="btn btn-secondary">
+
+        Cancel
+
+    </a>
+
+</form>
+
+{% endblock %}

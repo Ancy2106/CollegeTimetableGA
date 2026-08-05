@@ -1,0 +1,85 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between mb-3">
+
+    <h2>Faculty Management</h2>
+
+    <a href="/faculty/add" class="btn btn-success">
+
+        Add Faculty
+
+    </a>
+
+</div>
+
+<table class="table table-bordered table-hover">
+
+    <thead class="table-primary">
+
+        <tr>
+
+            <th>ID</th>
+
+            <th>Code</th>
+
+            <th>Name</th>
+
+            <th>Department</th>
+
+            <th>Designation</th>
+
+            <th>Email</th>
+
+            <th>Phone</th>
+
+            <th>Status</th>
+
+            <th>Action</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for f in faculty %}
+
+        <tr>
+
+            <td>{{ loop.index }}</td>
+
+            <td>{{f.faculty_code}}</td>
+
+            <td>{{f.faculty_name}}</td>
+
+            <td>{{f.department}}</td>
+
+            <td>{{f.designation}}</td>
+
+            <td>{{f.email}}</td>
+
+            <td>{{f.phone}}</td>
+
+            <td>{{f.availability}}</td>
+
+            <td>
+
+                <a href="/faculty/delete/{{f.id}}" class="btn btn-danger btn-sm">
+
+                    Delete
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}

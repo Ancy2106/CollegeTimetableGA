@@ -1,0 +1,66 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+    <h2>Department Management</h2>
+
+    <a href="/departments/add" class="btn btn-success">
+        Add Department
+    </a>
+
+</div>
+
+<table class="table table-bordered table-hover">
+
+    <thead class="table-primary">
+
+        <tr>
+
+            <th>ID</th>
+            <th>Department</th>
+            <th>Semester</th>
+            <th>Section</th>
+            <th>Academic Year</th>
+            <th>Action</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for department in departments %}
+
+        <tr>
+
+            <td>{{ loop.index }}</td>
+
+            <td>{{ department.department_name }}</td>
+
+            <td>{{ department.semester }}</td>
+
+            <td>{{ department.section }}</td>
+
+            <td>{{ department.academic_year }}</td>
+
+            <td>
+
+                <a href="/departments/delete/{{ department.id }}" class="btn btn-danger btn-sm">
+
+                    Delete
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}

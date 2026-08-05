@@ -1,0 +1,286 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">
+
+    Subject Allocation
+
+</h2>
+
+<form method="POST">
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+
+            <label>Department</label>
+
+            <select id="department" name="department" class="form-select" required>
+
+                {% for dept in departments %}
+
+                <option value="{{dept.id}}">
+
+                    {{dept.department_name}}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Semester</label>
+
+            <select id="semester" name="semester" class="form-select" required>
+
+                {% for sem in semesters %}
+
+                <option value="{{sem.id}}">
+
+                    Semester {{sem.semester}}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Section</label>
+
+            <select id="section" name="section" class="form-select" required>
+
+                {% for sec in sections %}
+
+                <option value="{{sec.id}}">
+
+                    {{sec.section_name}}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Subject</label>
+
+            <select id="subject" name="subject" class="form-select" required>
+
+                {% for sub in subjects %}
+
+                <option value="{{sub.id}}">
+
+                    {{sub.subject_name}}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Faculty</label>
+
+            <select name="faculty" class="form-select" required>
+
+                {% for fac in faculty %}
+
+                <option value="{{fac.id}}">
+
+                    {{fac.faculty_name}}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+        <div class="col-md-3 mb-3">
+
+            <label>Weekly Hours</label>
+
+            <input type="number" name="weekly_hours" class="form-control" required>
+
+        </div>
+
+        <div class="col-md-3 mb-3">
+
+            <label>Subject Type</label>
+
+            <select name="subject_type" class="form-select">
+
+                <option>Theory</option>
+
+                <option>Lab</option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-3 mb-3">
+
+            <label>Consecutive Hours</label>
+
+            <select name="consecutive_hours" class="form-select">
+
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-3 mb-3">
+
+            <label>Preferred Room</label>
+
+            <select name="preferred_room" class="form-select">
+
+                <option>Theory</option>
+
+                <option>Lab</option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-3 mb-4">
+
+            <label>Priority</label>
+
+            <select name="priority" class="form-select">
+
+                <option>High</option>
+
+                <option>Medium</option>
+
+                <option>Low</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <button class="btn btn-success">
+
+        Save Allocation
+
+    </button>
+
+    <a href="/allocations" class="btn btn-secondary">
+
+        Cancel
+
+    </a>
+
+</form>
+<script>
+
+    document.getElementById("department").addEventListener("change", function () {
+
+        let dept = this.value;
+
+        fetch("/api/semesters/" + dept)
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                let semester = document.getElementById("semester");
+
+                semester.innerHTML = "";
+
+                data.forEach(item => {
+
+                    semester.innerHTML +=
+                        `<option value="${item.id}">
+                        Semester ${item.semester}
+                    </option>`;
+
+                });
+
+                semester.dispatchEvent(new Event("change"));
+
+            });
+
+    });
+
+    document.getElementById("semester").addEventListener("change", function () {
+
+        let sem = this.value;
+
+        fetch("/api/sections/" + sem)
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                let section = document.getElementById("section");
+
+                section.innerHTML = "";
+
+                data.forEach(item => {
+
+                    section.innerHTML +=
+                        `<option value="${item.id}">
+                        ${item.name}
+                    </option>`;
+
+                });
+
+            });
+
+    });
+
+    document.getElementById("department").addEventListener("change", function () {
+
+        let dept = this.value;
+
+        fetch("/api/subjects/" + dept)
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                let subject = document.getElementById("subject");
+
+                subject.innerHTML = "";
+
+                data.forEach(item => {
+
+                    subject.innerHTML +=
+                        `<option value="${item.id}">
+                        ${item.name}
+                    </option>`;
+
+                });
+
+            });
+
+    });
+
+    // Load initial data
+    document.getElementById("department").dispatchEvent(new Event("change"));
+
+</script>
+
+{% endblock %}

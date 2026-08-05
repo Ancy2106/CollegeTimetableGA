@@ -1,0 +1,103 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<h2 class="mb-4">
+
+    <i class="bi bi-door-open"></i>
+
+    Add Classroom
+
+</h2>
+
+<form method="POST">
+
+    <div class="row">
+
+        <div class="col-md-6 mb-3">
+
+            <label>Room Number</label>
+
+            <input type="text" name="room_number" class="form-control" required>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Room Name</label>
+
+            <input type="text" name="room_name" class="form-control" required>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Room Type</label>
+
+            <select name="room_type" class="form-select">
+
+                <option>Theory</option>
+
+                <option>Lab</option>
+
+            </select>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Capacity</label>
+
+            <input type="number" name="capacity" class="form-control" required>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Building</label>
+
+            <input type="text" name="building" class="form-control" required>
+
+        </div>
+
+        <div class="col-md-6 mb-3">
+
+            <label>Floor</label>
+
+            <input type="number" name="floor" class="form-control" required>
+
+        </div>
+
+        <div class="col-md-6 mb-4">
+
+            <label>Status</label>
+
+            <select name="availability" class="form-select">
+
+                <option>Available</option>
+
+                <option>Not Available</option>
+
+            </select>
+
+        </div>
+
+    </div>
+
+    <button class="btn btn-success">
+
+        <i class="bi bi-check-circle"></i>
+
+        Save Classroom
+
+    </button>
+
+    <a href="/classrooms" class="btn btn-secondary">
+
+        Cancel
+
+    </a>
+
+</form>
+
+{% endblock %}

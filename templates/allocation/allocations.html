@@ -1,0 +1,91 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2>
+
+        <i class="bi bi-diagram-3-fill"></i>
+
+        Subject Allocation
+
+    </h2>
+
+    <a href="/allocations/add" class="btn btn-primary">
+
+        <i class="bi bi-plus-circle"></i>
+
+        New Allocation
+
+    </a>
+
+</div>
+
+<table class="table table-bordered table-hover shadow">
+
+    <thead class="table-primary">
+
+        <tr>
+
+            <th>ID</th>
+            <th>Department</th>
+            <th>Semester</th>
+            <th>Section</th>
+            <th>Subject</th>
+            <th>Faculty</th>
+            <th>Hours</th>
+            <th>Type</th>
+            <th>Room</th>
+            <th>Priority</th>
+            <th>Action</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for allocation in allocations %}
+
+        <tr>
+
+            <td>{{ loop.index }}</td>
+
+            <td>{{ allocation.department.department_name }}</td>
+
+            <td>{{ allocation.semester.semester }}</td>
+
+            <td>{{ allocation.section.section_name }}</td>
+
+            <td>{{ allocation.subject.subject_name }}</td>
+
+            <td>{{ allocation.faculty.faculty_name }}</td>
+
+            <td>{{ allocation.weekly_hours }}</td>
+
+            <td>{{ allocation.subject_type }}</td>
+
+            <td>{{ allocation.preferred_room }}</td>
+
+            <td>{{ allocation.priority }}</td>
+
+            <td>
+
+                <a href="/allocations/delete/{{allocation.id}}" class="btn btn-danger btn-sm">
+
+                    Delete
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}

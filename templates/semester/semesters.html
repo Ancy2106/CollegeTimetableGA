@@ -1,0 +1,71 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h2>
+        <i class="bi bi-mortarboard"></i>
+        Semester Management
+    </h2>
+
+    <a href="/semesters/add" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i>
+        Add Semester
+    </a>
+
+</div>
+
+<table class="table table-bordered table-hover shadow">
+
+    <thead class="table-primary">
+
+        <tr>
+
+            <th>ID</th>
+
+            <th>Department</th>
+
+            <th>Semester</th>
+
+            <th>Academic Year</th>
+
+            <th>Action</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for sem in semesters %}
+
+        <tr>
+
+            <td>{{ loop.index }}</td>
+
+            <td>{{ sem.department.department_name }}</td>
+
+            <td>Semester {{ sem.semester }}</td>
+
+            <td>{{ sem.academic_year }}</td>
+
+            <td>
+
+                <a href="/semesters/delete/{{ sem.id }}" class="btn btn-danger btn-sm">
+
+                    Delete
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}

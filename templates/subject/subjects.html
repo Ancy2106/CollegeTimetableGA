@@ -1,0 +1,79 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+
+    <h2>Subject Management</h2>
+
+    <a href="/subjects/add" class="btn btn-success">
+        Add Subject
+    </a>
+
+</div>
+
+<table class="table table-bordered table-hover">
+
+    <thead class="table-primary">
+
+        <tr>
+
+            <th>ID</th>
+            <th>Code</th>
+            <th>Subject</th>
+            <th>Semester</th>
+            <th>Hours/Week</th>
+            <th>Type</th>
+            <th>Faculty</th>
+            <th>Department</th>
+            <th>Action</th>
+
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for subject in subjects %}
+
+        <tr>
+
+            <td>{{ loop.index }}</td>
+
+            <td>{{ subject.subject_code }}</td>
+
+            <td>{{ subject.subject_name }}</td>
+
+            <td>{{ subject.semester }}</td>
+
+            <td>{{ subject.hours_per_week }}</td>
+
+            <td>{{ subject.subject_type }}</td>
+
+            <td>{{ subject.faculty.faculty_name }}</td>
+
+            <td>
+                {{ subject.department.department_name }}
+                (Sem {{ subject.department.semester }} -
+                {{ subject.department.section }})
+            </td>
+
+            <td>
+
+                <a href="/subjects/delete/{{subject.id}}" class="btn btn-danger btn-sm">
+
+                    Delete
+
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}
