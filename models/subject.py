@@ -2,13 +2,28 @@ from models import db
 
 
 class Subject(db.Model):
+
     __tablename__ = "subjects"
 
-    id = db.Column(db.Integer, primary_key=True)
+    __table_args__ = (
+
+        db.UniqueConstraint(
+            "subject_code",
+            "semester",
+            "department_id",
+            "section",
+            name="uq_subject_code_semester_department_section"
+        ),
+
+    )
+
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
     subject_code = db.Column(
         db.String(20),
-        unique=True,
         nullable=False
     )
 
@@ -19,6 +34,11 @@ class Subject(db.Model):
 
     semester = db.Column(
         db.Integer,
+        nullable=False
+    )
+
+    section = db.Column(
+        db.String(10),
         nullable=False
     )
 
@@ -44,8 +64,22 @@ class Subject(db.Model):
         nullable=False
     )
 
-    faculty = db.relationship("Faculty", backref="subjects")
-    department = db.relationship("Department", backref="subjects")
+    faculty = db.relationship(
+        "Faculty",
+        backref="subjects"
+    )
+
+    department = db.relationship(
+        "Department",
+        backref="subjects"
+    )
 
     def __repr__(self):
-        return f"<Subject {self.subject_name}>"
+
+        return (
+            f"<Subject "
+            f"{self.subject_code} - "
+            f"{self.subject_name} - "
+            f"Sem {self.semester} - "
+            f"Section {self.section}>"
+        )

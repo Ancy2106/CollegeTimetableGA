@@ -1,0 +1,326 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="container-fluid py-4">
+
+    <!-- ================================================= -->
+    <!-- PAGE HEADER -->
+    <!-- ================================================= -->
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <div>
+
+            <h2 class="fw-bold mb-1">
+                👨‍🏫 Faculty Timetable
+            </h2>
+
+            <p class="text-muted mb-0">
+                View the weekly timetable assigned to a faculty member.
+            </p>
+
+        </div>
+
+        <a href="{{ url_for('timetable.timetable') }}" class="btn btn-outline-primary">
+            📅 Class Timetable
+        </a>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- FACULTY SELECTOR -->
+    <!-- ================================================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <form method="GET" action="{{ url_for('timetable.faculty_timetable') }}">
+
+                <div class="row align-items-end">
+
+                    <div class="col-md-8">
+
+                        <label for="faculty" class="form-label fw-semibold">
+                            Select Faculty
+                        </label>
+
+                        <select name="faculty" id="faculty" class="form-select" required>
+
+                            <option value="">
+                                -- Select Faculty --
+                            </option>
+
+                            {% for faculty in faculty_names %}
+
+                            <option value="{{ faculty }}" {% if faculty==selected_faculty %} selected {% endif %}>
+                                {{ faculty }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-4">
+
+                        <button type="submit" class="btn btn-primary w-100">
+                            🔍 View Timetable
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+
+    {% if selected_faculty %}
+
+    <!-- ================================================= -->
+    <!-- FACULTY INFORMATION -->
+    <!-- ================================================= -->
+
+    <div class="card shadow-sm mb-4">
+
+        <div class="card-body">
+
+            <div class="row text-center">
+
+                <div class="col-md-6">
+
+                    <h6 class="text-muted mb-1">
+                        Faculty
+                    </h6>
+
+                    <h4 class="fw-bold text-primary">
+                        {{ selected_faculty }}
+                    </h4>
+
+                </div>
+
+                <div class="col-md-6">
+
+                    <h6 class="text-muted mb-1">
+                        Total Classes
+                    </h6>
+
+                    <h4 class="fw-bold text-success">
+                        {{ timetables|length }}
+                    </h4>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ================================================= -->
+    <!-- TIMETABLE -->
+    <!-- ================================================= -->
+
+    {% if timetables %}
+
+    <div class="card shadow">
+
+        <div class="card-body p-0">
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered text-center mb-0">
+
+                    <thead class="table-primary">
+
+                        <tr>
+
+                            <th>
+                                DAY
+                            </th>
+
+                            {% for slot in header_slots %}
+
+                            <th>
+
+                                P{{ slot.period }}
+
+                                <br>
+
+                                <small>
+                                    {{ slot.start_time }}
+                                    -
+                                    {{ slot.end_time }}
+                                </small>
+
+                            </th>
+
+                            {% endfor %}
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% set days = [
+                        "Monday",
+                        "Tuesday",
+                        "Wednesday",
+                        "Thursday",
+                        "Friday"
+                        ] %}
+
+
+                        {% for day in days %}
+
+                        <tr>
+
+                            <td class="fw-bold bg-light">
+                                {{ day }}
+                            </td>
+
+
+                            {% for slot in header_slots %}
+
+                            {% set lecture = namespace(item=None) %}
+
+
+                            {% for row in timetables %}
+
+                            {% if
+                            row.day == day
+                            and row.period == slot.period
+                            %}
+
+                            {% set lecture.item = row %}
+
+                            {% endif %}
+
+                            {% endfor %}
+
+
+                            {% if lecture.item %}
+
+                            <td>
+
+                                <div class="fw-bold text-primary">
+
+                                    {{ lecture.item.subject }}
+
+                                </div>
+
+                                <div class="small text-muted">
+
+                                    {{ lecture.item.department }}
+
+                                    -
+
+                                    Sem {{ lecture.item.semester }}
+
+                                    -
+
+                                    {{ lecture.item.section }}
+
+                                </div>
+
+                                <div class="small">
+
+                                    🏫 {{ lecture.item.room }}
+
+                                </div>
+
+                                {% if lecture.item.subject_type %}
+
+                                <div class="small text-muted">
+
+                                    {{ lecture.item.subject_type }}
+
+                                </div>
+
+                                {% endif %}
+
+                            </td>
+
+                            {% else %}
+
+                            <td class="text-muted">
+                                —
+                            </td>
+
+                            {% endif %}
+
+                            {% endfor %}
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <!-- ================================================= -->
+    <!-- NO CLASSES -->
+    <!-- ================================================= -->
+
+    <div class="alert alert-warning text-center">
+
+        No timetable entries were found for
+
+        <strong>
+            {{ selected_faculty }}
+        </strong>.
+
+    </div>
+
+    {% endif %}
+
+    {% else %}
+
+    <!-- ================================================= -->
+    <!-- SELECT FACULTY MESSAGE -->
+    <!-- ================================================= -->
+
+    <div class="card shadow-sm">
+
+        <div class="card-body text-center py-5">
+
+            <div style="font-size: 50px;">
+                👨‍🏫
+            </div>
+
+            <h4 class="mt-3">
+                Select a Faculty
+            </h4>
+
+            <p class="text-muted mb-0">
+                Choose a faculty member above to view their weekly timetable.
+            </p>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

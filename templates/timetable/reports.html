@@ -1,229 +1,72 @@
 {% extends "layout/base.html" %}
 
+{% block title %}Timetable Reports{% endblock %}
+
 {% block content %}
 
 <div class="container-fluid">
 
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="card shadow">
 
-        <div>
-            <h2>
+        <div class="card-header bg-primary text-white">
+
+            <h3>
                 📊 Timetable Reports
-            </h2>
-
-            <p class="text-muted mb-0">
-                View generated timetable records
-            </p>
-        </div>
-
-        <div>
-
-            <a href="{{ url_for('timetable.timetable') }}" class="btn btn-secondary">
-
-                ← Back to Timetable
-
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- REPORT SUMMARY -->
-    <!-- ================================================= -->
-
-    <div class="row mb-4">
-
-        <div class="col-md-4">
-
-            <div class="card shadow-sm p-3 text-center">
-
-                <h6 class="text-muted">
-                    Total Entries
-                </h6>
-
-                <h2>
-                    {{ timetables|length }}
-                </h2>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-4">
-
-            <div class="card shadow-sm p-3 text-center">
-
-                <h6 class="text-muted">
-                    Departments
-                </h6>
-
-                <h2>
-
-                    {{
-                    timetables
-                    |map(attribute='department')
-                    |unique
-                    |list
-                    |length
-                    }}
-
-                </h2>
-
-            </div>
-
-        </div>
-
-        <div class="col-md-4">
-
-            <div class="card shadow-sm p-3 text-center">
-
-                <h6 class="text-muted">
-                    Subjects
-                </h6>
-
-                <h2>
-
-                    {{
-                    timetables
-                    |map(attribute='subject')
-                    |unique
-                    |list
-                    |length
-                    }}
-
-                </h2>
-
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <!-- ================================================= -->
-    <!-- REPORT TABLE -->
-    <!-- ================================================= -->
-
-    <div class="card shadow-sm">
-
-        <div class="card-header">
-
-            <strong>
-                Generated Timetable Entries
-            </strong>
+            </h3>
 
         </div>
 
         <div class="card-body">
 
-            {% if timetables %}
+            <p class="text-muted">
 
-            <div class="table-responsive">
+                Download the generated timetable in different formats.
 
-                <table class="table table-bordered table-hover">
+            </p>
 
-                    <thead class="table-dark">
+            <div class="row">
 
-                        <tr>
+                <div class="col-md-3">
 
-                            <th>#</th>
+                    <a href="{{ url_for('timetable.export_excel') }}" class="btn btn-success w-100">
 
-                            <th>Department</th>
+                        📗 Export Excel
 
-                            <th>Semester</th>
+                    </a>
 
-                            <th>Section</th>
+                </div>
 
-                            <th>Subject</th>
+                <div class="col-md-3">
 
-                            <th>Faculty</th>
+                    <a href="{{ url_for('timetable.export_pdf') }}" class="btn btn-danger w-100">
 
-                            <th>Room</th>
+                        📕 Export PDF
 
-                            <th>Day</th>
+                    </a>
 
-                            <th>Period</th>
+                </div>
 
-                        </tr>
+                <div class="col-md-3">
 
-                    </thead>
+                    <a href="{{ url_for('timetable.export_csv') }}" class="btn btn-primary w-100">
 
-                    <tbody>
+                        📄 Export CSV
 
-                        {% for timetable in timetables %}
+                    </a>
 
-                        <tr>
+                </div>
 
-                            <td>
-                                {{ loop.index }}
-                            </td>
+                <div class="col-md-3">
 
-                            <td>
-                                {{ timetable.department }}
-                            </td>
+                    <a href="{{ url_for('timetable.timetable') }}" class="btn btn-secondary w-100">
 
-                            <td>
-                                {{ timetable.semester }}
-                            </td>
+                        👀 View Timetable
 
-                            <td>
-                                {{ timetable.section }}
-                            </td>
+                    </a>
 
-                            <td>
-                                {{ timetable.subject }}
-                            </td>
-
-                            <td>
-                                {{ timetable.faculty }}
-                            </td>
-
-                            <td>
-                                {{ timetable.room }}
-                            </td>
-
-                            <td>
-                                {{ timetable.day }}
-                            </td>
-
-                            <td>
-                                P{{ timetable.period }}
-                            </td>
-
-                        </tr>
-
-                        {% endfor %}
-
-                    </tbody>
-
-                </table>
+                </div>
 
             </div>
-
-            {% else %}
-
-            <div class="text-center p-5">
-
-                <h4>
-                    📭 No Timetable Data
-                </h4>
-
-                <p class="text-muted">
-                    Generate a timetable using the Genetic Algorithm
-                    to see reports here.
-                </p>
-
-                <a href="{{ url_for('timetable.generate_timetable') }}" class="btn btn-primary">
-
-                    🧬 Generate Timetable
-
-                </a>
-
-            </div>
-
-            {% endif %}
 
         </div>
 

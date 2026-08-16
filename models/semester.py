@@ -2,9 +2,13 @@ from models import db
 
 
 class Semester(db.Model):
+
     __tablename__ = "semesters"
 
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(
+        db.Integer,
+        primary_key=True
+    )
 
     department_id = db.Column(
         db.Integer,

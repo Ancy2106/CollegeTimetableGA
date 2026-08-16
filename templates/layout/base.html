@@ -124,14 +124,21 @@
                 </li>
 
                 <li>
-                    <a href="/generate">
+                    <a href="{{ url_for('timetable.faculty_timetable') }}">
+                        <i class="bi bi-person-workspace"></i>
+                        Faculty Timetable
+                    </a>
+                </li>
+
+                <li>
+                    <a href="{{ url_for('timetable.generate_page') }}">
                         <i class="bi bi-cpu"></i>
                         Generate GA
                     </a>
                 </li>
 
                 <li>
-                    <a href="#">
+                    <a href="/timetable/reports">
                         <i class="bi bi-file-earmark-text"></i>
                         Reports
                     </a>

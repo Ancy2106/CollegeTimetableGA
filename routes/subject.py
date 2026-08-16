@@ -13,38 +13,79 @@ subject_bp = Blueprint("subject", __name__)
 @login_required
 def subjects():
 
-    subject_list = Subject.query.all()
+    subjects = Subject.query.order_by(
+        Subject.semester,
+        Subject.section,
+        Subject.subject_name
+    ).all()
+
+    departments = Department.query.order_by(
+        Department.department_name
+    ).all()
+
+    faculties = Faculty.query.order_by(
+        Faculty.faculty_name
+    ).all()
 
     return render_template(
         "subject/subjects.html",
-        subjects=subject_list
+        subjects=subjects,
+        departments=departments,
+        faculties=faculties
     )
 
 
-@subject_bp.route("/subjects/add", methods=["GET", "POST"])
+@subject_bp.route(
+    "/subjects/add",
+    methods=["GET", "POST"]
+)
 @login_required
 def add_subject():
 
     faculty = Faculty.query.all()
+
     departments = Department.query.all()
 
     if request.method == "POST":
 
+        department_id = int(
+            request.form["department_id"]
+        )
+
+        department = Department.query.get_or_404(
+            department_id
+        )
+
         subject = Subject(
 
-            subject_code=request.form["subject_code"],
+            subject_code=request.form[
+                "subject_code"
+            ].strip(),
 
-            subject_name=request.form["subject_name"],
+            subject_name=request.form[
+                "subject_name"
+            ].strip(),
 
-            semester=request.form["semester"],
+            semester=int(
+                request.form["semester"]
+            ),
 
-            hours_per_week=request.form["hours_per_week"],
+            # Get section from selected Department
+            section=department.section,
 
-            subject_type=request.form["subject_type"],
+            hours_per_week=int(
+                request.form["hours_per_week"]
+            ),
 
-            faculty_id=request.form["faculty_id"],
+            subject_type=request.form[
+                "subject_type"
+            ].strip(),
 
-            department_id=request.form["department_id"]
+            faculty_id=int(
+                request.form["faculty_id"]
+            ),
+
+            department_id=department_id
 
         )
 
@@ -52,7 +93,9 @@ def add_subject():
 
         db.session.commit()
 
-        return redirect(url_for("subject.subjects"))
+        return redirect(
+            url_for("subject.subjects")
+        )
 
     return render_template(
         "subject/add_subject.html",

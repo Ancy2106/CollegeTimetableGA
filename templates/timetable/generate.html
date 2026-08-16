@@ -1,0 +1,136 @@
+{% extends "layout/base.html" %}
+
+{% block title %}Generate Timetable{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <div class="card shadow">
+
+        <div class="card-header bg-primary text-white">
+
+            <h3 class="mb-0">
+                🧬 Genetic Algorithm Timetable Generator
+            </h3>
+
+        </div>
+
+        <div class="card-body">
+
+            <p class="text-muted">
+                Select the department, semester and section
+                for which you want to generate the timetable.
+            </p>
+
+            <hr>
+
+            <form method="POST" action="{{ url_for('timetable.generate_timetable') }}">
+
+                <div class="row">
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+                            Department
+                        </label>
+
+                        <select name="department" class="form-control" required>
+
+                            <option value="">
+                                Select Department
+                            </option>
+
+                            {% for d in departments | unique(attribute="department_name") %}
+
+                            <option value="{{ d.department_name }}">
+                                {{ d.department_name }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+                            Semester
+                        </label>
+
+                        <select name="semester" class="form-control" required>
+
+                            <option value="">
+                                Select Semester
+                            </option>
+
+                            {% for s in semesters | unique(attribute="semester") %}
+
+                            <option value="{{ s.semester }}">
+                                Semester {{ s.semester }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="col-md-4 mb-3">
+
+                        <label class="form-label">
+                            Section
+                        </label>
+
+                        <select name="section" class="form-control" required>
+
+                            <option value="">
+                                Select Section
+                            </option>
+
+                            {% for s in sections | unique(attribute="section_name") %}
+
+                            <option value="{{ s.section_name }}">
+                                Section {{ s.section_name }}
+                            </option>
+
+                            {% endfor %}
+
+                        </select>
+
+                    </div>
+
+                </div>
+
+
+                <div class="mt-3">
+
+                    <form method="POST" action="{{ url_for('timetable.generate_timetable') }}">
+
+                        <button type="submit" class="btn btn-success btn-md">
+                            🧬 Generate Timetable
+                        </button>
+
+                    </form>
+
+
+                    <a href="{{ url_for('timetable.timetable') }}" class="btn btn-secondary btn-md">
+
+                        📅 View Timetable
+
+                    </a>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

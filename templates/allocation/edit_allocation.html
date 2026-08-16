@@ -1,0 +1,300 @@
+{% extends "layout/base.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h2>Edit Subject Allocation</h2>
+
+    <form method="POST">
+
+        <!-- ===================================== -->
+        <!-- DEPARTMENT -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Department
+            </label>
+
+            <select name="department" id="department" class="form-select">
+                {% set seen_departments = [] %}
+
+                {% for dept in departments %}
+
+                {% if dept.department_name not in seen_departments %}
+
+                <option value="{{ dept.id }}">
+                    {{ dept.department_name }}
+                </option>
+
+                {% set _ = seen_departments.append(dept.department_name) %}
+
+                {% endif %}
+
+                {% endfor %}
+            </select>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- SEMESTER -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Semester
+            </label>
+
+            <select name="semester" id="semester" class="form-select" required>
+
+                <option value="">
+                    Select Semester
+                </option>
+
+                {% for semester in semesters %}
+
+                <option value="{{ semester.id }}" {% if semester.id==allocation.semester_id %} selected {% endif %}>
+
+                    Semester {{ semester.semester }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- SECTION -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Section
+            </label>
+
+            <select name="section" id="section" class="form-select">
+
+                {% set seen_sections = [] %}
+
+                {% for sec in sections %}
+
+                {% if sec.section_name not in seen_sections %}
+
+                <option value="{{ sec.id }}">
+                    {{ sec.section_name }}
+                </option>
+
+                {% set _ = seen_sections.append(sec.section_name) %}
+
+                {% endif %}
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- SUBJECT -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Subject
+            </label>
+
+            <select name="subject" id="subject" class="form-select" required>
+
+                <option value="">
+                    Select Subject
+                </option>
+
+                {% for subject in subjects %}
+
+                <option value="{{ subject.id }}" {% if subject.id==allocation.subject_id %} selected {% endif %}>
+
+                    {{ subject.subject_name }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- FACULTY -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Faculty
+            </label>
+
+            <select name="faculty" id="faculty" class="form-select" required>
+
+                <option value="">
+                    Select Faculty
+                </option>
+
+                {% for member in faculty %}
+
+                <option value="{{ member.id }}" {% if member.id==allocation.faculty_id %} selected {% endif %}>
+
+                    {{ member.faculty_name }}
+
+                </option>
+
+                {% endfor %}
+
+            </select>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- WEEKLY HOURS -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Weekly Hours
+            </label>
+
+            <input type="number" name="weekly_hours" class="form-control" min="1" value="{{ allocation.weekly_hours }}"
+                required>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- SUBJECT TYPE -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Subject Type
+            </label>
+
+            <select name="subject_type" class="form-select" required>
+
+                <option value="Theory" {% if allocation.subject_type=="Theory" %} selected {% endif %}>
+                    Theory
+                </option>
+
+
+                <option value="Lab" {% if allocation.subject_type=="Lab" %} selected {% endif %}>
+                    Lab
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- CONSECUTIVE HOURS -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Consecutive Hours
+            </label>
+
+            <input type="number" name="consecutive_hours" class="form-control" min="1"
+                value="{{ allocation.consecutive_hours }}" required>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- PREFERRED ROOM -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Preferred Room
+            </label>
+
+            <select name="preferred_room" class="form-select" required>
+
+                <option value="Theory" {% if allocation.preferred_room=="Theory" %} selected {% endif %}>
+                    Theory
+                </option>
+
+
+                <option value="Lab" {% if allocation.preferred_room=="Lab" %} selected {% endif %}>
+                    Lab
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- PRIORITY -->
+        <!-- ===================================== -->
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Priority
+            </label>
+
+            <select name="priority" class="form-select" required>
+
+                <option value="High" {% if allocation.priority=="High" %} selected {% endif %}>
+                    High
+                </option>
+
+
+                <option value="Medium" {% if allocation.priority=="Medium" %} selected {% endif %}>
+                    Medium
+                </option>
+
+
+                <option value="Low" {% if allocation.priority=="Low" %} selected {% endif %}>
+                    Low
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <!-- ===================================== -->
+        <!-- BUTTONS -->
+        <!-- ===================================== -->
+
+        <button type="submit" class="btn btn-primary">
+            Update Allocation
+        </button>
+
+
+        <a href="{{ url_for('allocation.allocations') }}" class="btn btn-secondary">
+            Cancel
+        </a>
+
+    </form>
+
+</div>
+
+{% endblock %}

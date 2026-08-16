@@ -72,10 +72,20 @@
 
             <td>
 
-                <a href="/allocations/delete/{{allocation.id}}" class="btn btn-danger btn-sm">
+                <a href="{{ url_for(
+            'allocation.edit_allocation',
+            id=allocation.id
+        ) }}" class="btn btn-secondary btn-sm">
+                    Edit
+                </a>
 
+                <a href="{{ url_for(
+            'allocation.delete_allocation',
+            id=allocation.id
+        ) }}" class="btn btn-danger btn-sm" onclick="return confirm(
+            'Are you sure you want to delete this allocation?'
+        )">
                     Delete
-
                 </a>
 
             </td>

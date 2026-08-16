@@ -18,13 +18,21 @@
 
             <select id="department" name="department" class="form-select" required>
 
+                {% set seen_departments = [] %}
+
                 {% for dept in departments %}
 
-                <option value="{{dept.id}}">
+                {% if dept.department_name not in seen_departments %}
 
-                    {{dept.department_name}}
+                <option value="{{ dept.id }}">
+
+                    {{ dept.department_name }}
 
                 </option>
+
+                {% set _ = seen_departments.append(dept.department_name) %}
+
+                {% endif %}
 
                 {% endfor %}
 
@@ -40,9 +48,9 @@
 
                 {% for sem in semesters %}
 
-                <option value="{{sem.id}}">
+                <option value="{{ sem.semester }}">
 
-                    Semester {{sem.semester}}
+                    Semester {{ sem.semester }}
 
                 </option>
 
@@ -195,91 +203,232 @@
 </form>
 <script>
 
-    document.getElementById("department").addEventListener("change", function () {
+    const departmentSelect =
+        document.getElementById("department");
 
-        let dept = this.value;
+    const semesterSelect =
+        document.getElementById("semester");
 
-        fetch("/api/semesters/" + dept)
+    const sectionSelect =
+        document.getElementById("section");
 
-            .then(response => response.json())
+    const subjectSelect =
+        document.getElementById("subject");
 
-            .then(data => {
 
-                let semester = document.getElementById("semester");
+    function loadSubjects() {
 
-                semester.innerHTML = "";
+        const semesterId =
+            semesterSelect.value;
 
-                data.forEach(item => {
+        const sectionId =
+            sectionSelect.value;
 
-                    semester.innerHTML +=
-                        `<option value="${item.id}">
-                        Semester ${item.semester}
-                    </option>`;
+        if (!semesterId || !sectionId) {
 
-                });
+            subjectSelect.innerHTML =
+                `<option value="">Select section</option>`;
 
-                semester.dispatchEvent(new Event("change"));
+            return;
+        }
 
-            });
+        subjectSelect.innerHTML =
+            `<option value="">Loading...</option>`;
 
-    });
-
-    document.getElementById("semester").addEventListener("change", function () {
-
-        let sem = this.value;
-
-        fetch("/api/sections/" + sem)
-
-            .then(response => response.json())
-
-            .then(data => {
-
-                let section = document.getElementById("section");
-
-                section.innerHTML = "";
-
-                data.forEach(item => {
-
-                    section.innerHTML +=
-                        `<option value="${item.id}">
-                        ${item.name}
-                    </option>`;
-
-                });
-
-            });
-
-    });
-
-    document.getElementById("department").addEventListener("change", function () {
-
-        let dept = this.value;
-
-        fetch("/api/subjects/" + dept)
+        fetch(
+            "/api/subjects/" +
+            semesterId +
+            "/" +
+            sectionId
+        )
 
             .then(response => response.json())
 
             .then(data => {
 
-                let subject = document.getElementById("subject");
+                subjectSelect.innerHTML = "";
 
-                subject.innerHTML = "";
+                if (data.length === 0) {
+
+                    subjectSelect.innerHTML =
+                        `<option value="">No subjects available</option>`;
+
+                    return;
+                }
 
                 data.forEach(item => {
 
-                    subject.innerHTML +=
+                    subjectSelect.innerHTML +=
                         `<option value="${item.id}">
-                        ${item.name}
-                    </option>`;
+                    ${item.name}
+                </option>`;
 
                 });
 
+            })
+
+            .catch(error => {
+
+                console.error(error);
+
+                subjectSelect.innerHTML =
+                    `<option value="">Error loading subjects</option>`;
+
             });
 
-    });
+    }
 
-    // Load initial data
-    document.getElementById("department").dispatchEvent(new Event("change"));
+
+    function loadSections() {
+
+        const semesterId =
+            semesterSelect.value;
+
+        if (!semesterId) {
+
+            sectionSelect.innerHTML =
+                `<option value="">Select semester</option>`;
+
+            return;
+        }
+
+        sectionSelect.innerHTML =
+            `<option value="">Loading...</option>`;
+
+        fetch(
+            "/api/sections/" +
+            semesterId
+        )
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                sectionSelect.innerHTML = "";
+
+                if (data.length === 0) {
+
+                    sectionSelect.innerHTML =
+                        `<option value="">No sections available</option>`;
+
+                    subjectSelect.innerHTML =
+                        `<option value="">Select section</option>`;
+
+                    return;
+                }
+
+                data.forEach(item => {
+
+                    sectionSelect.innerHTML +=
+                        `<option value="${item.id}">
+                    ${item.name}
+                </option>`;
+
+                });
+
+                // IMPORTANT:
+                // After section loads, immediately load subjects
+                loadSubjects();
+
+            })
+
+            .catch(error => {
+
+                console.error(error);
+
+                sectionSelect.innerHTML =
+                    `<option value="">Error loading sections</option>`;
+
+            });
+
+    }
+
+
+    function loadSemesters() {
+
+        const departmentId =
+            departmentSelect.value;
+
+        semesterSelect.innerHTML =
+            `<option value="">Loading...</option>`;
+
+        sectionSelect.innerHTML =
+            `<option value="">Select semester</option>`;
+
+        subjectSelect.innerHTML =
+            `<option value="">Select section</option>`;
+
+        fetch(
+            "/api/semesters/" +
+            departmentId
+        )
+
+            .then(response => response.json())
+
+            .then(data => {
+
+                semesterSelect.innerHTML = "";
+
+                data.forEach(item => {
+
+                    semesterSelect.innerHTML +=
+                        `<option value="${item.id}">
+                    Semester ${item.semester}
+                </option>`;
+
+                });
+
+                loadSections();
+
+            })
+
+            .catch(error => {
+
+                console.error(error);
+
+                semesterSelect.innerHTML =
+                    `<option value="">Error loading semesters</option>`;
+
+            });
+
+    }
+
+
+    // Department changed
+    departmentSelect.addEventListener(
+        "change",
+        function () {
+
+            loadSemesters();
+
+        }
+    );
+
+
+    // Semester changed
+    semesterSelect.addEventListener(
+        "change",
+        function () {
+
+            loadSections();
+
+        }
+    );
+
+
+    // Section changed
+    sectionSelect.addEventListener(
+        "change",
+        function () {
+
+            loadSubjects();
+
+        }
+    );
+
+
+    // Initial page load
+    loadSemesters();
 
 </script>
 
