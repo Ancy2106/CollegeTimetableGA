@@ -553,30 +553,48 @@ def generate_timetable():
                 "a valid timetable."
             )
 
-        generated_timetable = best_solution
-
         # =====================================================
-        # CLEAR OLD TIMETABLE
+        # GET GENERATED LECTURES
         # =====================================================
 
-        Timetable.query.delete()
+        if hasattr(
+            best_solution,
+            "timetable"
+        ):
 
-        db.session.commit()
+            generated_timetable = (
+                best_solution.timetable
+            )
+
+        else:
+
+            generated_timetable = (
+                best_solution
+            )
+
+        if not generated_timetable:
+
+            raise Exception(
+                "Genetic Algorithm returned "
+                "an empty timetable."
+            )
 
         # =====================================================
-        # SAVE GENERATED TIMETABLE
+        # NORMALIZE GENERATED DATA FIRST
+        #
+        # IMPORTANT:
+        # Nothing is deleted from the database before this
+        # section has successfully completed.
         # =====================================================
 
-        created_count = 0
+        prepared_entries = []
 
-        first_department = None
-        first_semester = None
-        first_section = None
+        affected_scopes = set()
 
         for lecture in generated_timetable:
 
             # =================================================
-            # GET IDs
+            # GET IDS
             # =================================================
 
             allocation_id = lecture.get(
@@ -593,7 +611,9 @@ def generate_timetable():
 
             room_id = lecture.get(
                 "room_id",
-                lecture.get("classroom_id")
+                lecture.get(
+                    "classroom_id"
+                )
             )
 
             timeslot_id = lecture.get(
@@ -619,9 +639,11 @@ def generate_timetable():
 
                 if department_id:
 
-                    department_obj = db.session.get(
-                        Department,
-                        int(department_id)
+                    department_obj = (
+                        db.session.get(
+                            Department,
+                            int(department_id)
+                        )
                     )
 
                     if department_obj:
@@ -629,6 +651,76 @@ def generate_timetable():
                         department = str(
                             department_obj.department_name
                         ).strip()
+
+            # =================================================
+            # FALLBACK: GET DEPARTMENT FROM ALLOCATION
+            # =================================================
+
+            if not department and allocation_id:
+
+                allocation_obj = (
+                    db.session.get(
+                        SubjectAllocation,
+                        int(allocation_id)
+                    )
+                )
+
+                if allocation_obj:
+
+                    # Try common possible department fields
+                    allocation_department = getattr(
+                        allocation_obj,
+                        "department",
+                        None
+                    )
+
+                    if allocation_department:
+
+                        if isinstance(
+                            allocation_department,
+                            str
+                        ):
+
+                            department = (
+                                allocation_department.strip()
+                            )
+
+                        else:
+
+                            department = str(
+                                getattr(
+                                    allocation_department,
+                                    "department_name",
+                                    ""
+                                )
+                            ).strip()
+
+                    if not department:
+
+                        allocation_department_id = (
+                            getattr(
+                                allocation_obj,
+                                "department_id",
+                                None
+                            )
+                        )
+
+                        if allocation_department_id:
+
+                            department_obj = (
+                                db.session.get(
+                                    Department,
+                                    int(
+                                        allocation_department_id
+                                    )
+                                )
+                            )
+
+                            if department_obj:
+
+                                department = str(
+                                    department_obj.department_name
+                                ).strip()
 
             # =================================================
             # SEMESTER
@@ -647,6 +739,24 @@ def generate_timetable():
 
                 semester = semester_value
 
+            elif isinstance(
+                semester_value,
+                str
+            ):
+
+                try:
+
+                    semester = int(
+                        semester_value
+                    )
+
+                except (
+                    ValueError,
+                    TypeError
+                ):
+
+                    semester = 0
+
             elif hasattr(
                 semester_value,
                 "semester"
@@ -664,9 +774,11 @@ def generate_timetable():
 
                 if semester_id:
 
-                    semester_obj = db.session.get(
-                        Semester,
-                        int(semester_id)
+                    semester_obj = (
+                        db.session.get(
+                            Semester,
+                            int(semester_id)
+                        )
                     )
 
                     if semester_obj:
@@ -674,6 +786,71 @@ def generate_timetable():
                         semester = int(
                             semester_obj.semester
                         )
+
+            # =================================================
+            # FALLBACK: SEMESTER FROM ALLOCATION
+            # =================================================
+
+            if not semester and allocation_id:
+
+                allocation_obj = (
+                    db.session.get(
+                        SubjectAllocation,
+                        int(allocation_id)
+                    )
+                )
+
+                if allocation_obj:
+
+                    allocation_semester = getattr(
+                        allocation_obj,
+                        "semester",
+                        None
+                    )
+
+                    if isinstance(
+                        allocation_semester,
+                        int
+                    ):
+
+                        semester = (
+                            allocation_semester
+                        )
+
+                    elif allocation_semester:
+
+                        semester = int(
+                            getattr(
+                                allocation_semester,
+                                "semester",
+                                0
+                            )
+                        )
+
+                    if not semester:
+
+                        semester_id = getattr(
+                            allocation_obj,
+                            "semester_id",
+                            None
+                        )
+
+                        if semester_id:
+
+                            semester_obj = (
+                                db.session.get(
+                                    Semester,
+                                    int(
+                                        semester_id
+                                    )
+                                )
+                            )
+
+                            if semester_obj:
+
+                                semester = int(
+                                    semester_obj.semester
+                                )
 
             # =================================================
             # SECTION
@@ -694,9 +871,11 @@ def generate_timetable():
 
                 if section_id:
 
-                    section_obj = db.session.get(
-                        Section,
-                        int(section_id)
+                    section_obj = (
+                        db.session.get(
+                            Section,
+                            int(section_id)
+                        )
                     )
 
                     if section_obj:
@@ -704,6 +883,75 @@ def generate_timetable():
                         section = str(
                             section_obj.section_name
                         ).strip()
+
+            # =================================================
+            # FALLBACK: SECTION FROM ALLOCATION
+            # =================================================
+
+            if not section and allocation_id:
+
+                allocation_obj = (
+                    db.session.get(
+                        SubjectAllocation,
+                        int(allocation_id)
+                    )
+                )
+
+                if allocation_obj:
+
+                    allocation_section = getattr(
+                        allocation_obj,
+                        "section",
+                        None
+                    )
+
+                    if allocation_section:
+
+                        if isinstance(
+                            allocation_section,
+                            str
+                        ):
+
+                            section = (
+                                allocation_section.strip()
+                            )
+
+                        else:
+
+                            section = str(
+                                getattr(
+                                    allocation_section,
+                                    "section_name",
+                                    ""
+                                )
+                            ).strip()
+
+                    if not section:
+
+                        allocation_section_id = (
+                            getattr(
+                                allocation_obj,
+                                "section_id",
+                                None
+                            )
+                        )
+
+                        if allocation_section_id:
+
+                            section_obj = (
+                                db.session.get(
+                                    Section,
+                                    int(
+                                        allocation_section_id
+                                    )
+                                )
+                            )
+
+                            if section_obj:
+
+                                section = str(
+                                    section_obj.section_name
+                                ).strip()
 
             # =================================================
             # SUBJECT
@@ -718,9 +966,11 @@ def generate_timetable():
 
             if not subject and subject_id:
 
-                subject_obj = db.session.get(
-                    Subject,
-                    int(subject_id)
+                subject_obj = (
+                    db.session.get(
+                        Subject,
+                        int(subject_id)
+                    )
                 )
 
                 if subject_obj:
@@ -742,9 +992,11 @@ def generate_timetable():
 
             if not faculty_name and faculty_id:
 
-                faculty_obj = db.session.get(
-                    Faculty,
-                    int(faculty_id)
+                faculty_obj = (
+                    db.session.get(
+                        Faculty,
+                        int(faculty_id)
+                    )
                 )
 
                 if faculty_obj:
@@ -766,9 +1018,11 @@ def generate_timetable():
 
             if not room and room_id:
 
-                room_obj = db.session.get(
-                    Classroom,
-                    int(room_id)
+                room_obj = (
+                    db.session.get(
+                        Classroom,
+                        int(room_id)
+                    )
                 )
 
                 if room_obj:
@@ -794,7 +1048,7 @@ def generate_timetable():
             ).strip()
 
             # =================================================
-            # DAY / PERIOD
+            # DAY
             # =================================================
 
             day = str(
@@ -804,12 +1058,25 @@ def generate_timetable():
                 )
             ).strip()
 
-            period = int(
-                lecture.get(
-                    "period",
-                    0
+            # =================================================
+            # PERIOD
+            # =================================================
+
+            try:
+
+                period = int(
+                    lecture.get(
+                        "period",
+                        0
+                    ) or 0
                 )
-            )
+
+            except (
+                ValueError,
+                TypeError
+            ):
+
+                period = 0
 
             # =================================================
             # TIMES
@@ -836,7 +1103,9 @@ def generate_timetable():
                 )
             ).strip()
 
-            # Get times from TimeSlot if missing
+            # =================================================
+            # GET TIMES FROM TIMESLOT IF MISSING
+            # =================================================
 
             if (
                 timeslot_id
@@ -846,9 +1115,11 @@ def generate_timetable():
                 )
             ):
 
-                timeslot_obj = db.session.get(
-                    TimeSlot,
-                    int(timeslot_id)
+                timeslot_obj = (
+                    db.session.get(
+                        TimeSlot,
+                        int(timeslot_id)
+                    )
                 )
 
                 if timeslot_obj:
@@ -860,6 +1131,12 @@ def generate_timetable():
                     end_time = str(
                         timeslot_obj.end_time
                     )
+
+                    if not day:
+
+                        day = str(
+                            timeslot_obj.day
+                        ).strip()
 
             # =================================================
             # VALIDATE
@@ -897,68 +1174,66 @@ def generate_timetable():
                 continue
 
             # =================================================
-            # CREATE ENTRY
+            # RECORD AFFECTED SCOPE
             # =================================================
 
-            timetable_entry = Timetable(
+            affected_scopes.add(
+                (
+                    department,
+                    int(semester),
+                    section
+                )
+            )
 
-                department=department,
+            # =================================================
+            # STORE PREPARED ENTRY
+            #
+            # DO NOT INSERT YET.
+            # =================================================
 
-                semester=semester,
+            prepared_entries.append({
 
-                section=section,
+                "department": department,
 
-                subject=subject,
+                "semester": int(
+                    semester
+                ),
 
-                subject_type=subject_type,
+                "section": section,
 
-                faculty=faculty_name,
+                "subject": subject,
 
-                room=room,
+                "subject_type": subject_type,
 
-                day=day,
+                "faculty": faculty_name,
 
-                period=period,
+                "room": room,
 
-                start_time=start_time,
+                "day": day,
 
-                end_time=end_time,
+                "period": period,
 
-                session=session,
+                "start_time": start_time,
 
-                allocation_id=int(
+                "end_time": end_time,
+
+                "session": session,
+
+                "allocation_id": int(
                     allocation_id or 0
                 ),
 
-                timeslot_id=int(
+                "timeslot_id": int(
                     timeslot_id or 0
                 )
 
-            )
-
-            db.session.add(
-                timetable_entry
-            )
-
-            # =================================================
-            # SAVE FIRST FILTER VALUES
-            # =================================================
-
-            if first_department is None:
-
-                first_department = department
-
-                first_semester = semester
-
-                first_section = section
-
-            created_count += 1
+            })
 
         # =====================================================
-        # COMMIT
+        # MAKE SURE SOMETHING VALID WAS GENERATED
         # =====================================================
 
-        if created_count == 0:
+        if not prepared_entries:
 
             db.session.rollback()
 
@@ -974,6 +1249,152 @@ def generate_timetable():
                 )
             )
 
+        # =====================================================
+        # DEBUG AFFECTED SCOPES
+        # =====================================================
+
+        print()
+        print("==========================================")
+        print("PREPARED TIMETABLE")
+        print("==========================================")
+        print(
+            "Valid Classes:",
+            len(prepared_entries)
+        )
+        print(
+            "Affected Scopes:",
+            sorted(
+                affected_scopes
+            )
+        )
+        print("==========================================")
+        print()
+
+        # =====================================================
+        # CLEAR OLD TIMETABLE
+        #
+        # THIS IS NOW SAFE:
+        # department / semester / section are already known.
+        # =====================================================
+
+        deleted_count = 0
+
+        for (
+            department,
+            semester,
+            section
+        ) in affected_scopes:
+
+            deleted = (
+                Timetable.query
+                .filter_by(
+                    department=department,
+                    semester=semester,
+                    section=section
+                )
+                .delete(
+                    synchronize_session=False
+                )
+            )
+
+            deleted_count += deleted
+
+        # =====================================================
+        # SAVE NEW TIMETABLE
+        # =====================================================
+
+        created_count = 0
+
+        first_department = None
+        first_semester = None
+        first_section = None
+
+        for entry in prepared_entries:
+
+            timetable_entry = Timetable(
+
+                department=entry[
+                    "department"
+                ],
+
+                semester=entry[
+                    "semester"
+                ],
+
+                section=entry[
+                    "section"
+                ],
+
+                subject=entry[
+                    "subject"
+                ],
+
+                subject_type=entry[
+                    "subject_type"
+                ],
+
+                faculty=entry[
+                    "faculty"
+                ],
+
+                room=entry[
+                    "room"
+                ],
+
+                day=entry[
+                    "day"
+                ],
+
+                period=entry[
+                    "period"
+                ],
+
+                start_time=entry[
+                    "start_time"
+                ],
+
+                end_time=entry[
+                    "end_time"
+                ],
+
+                session=entry[
+                    "session"
+                ],
+
+                allocation_id=entry[
+                    "allocation_id"
+                ],
+
+                timeslot_id=entry[
+                    "timeslot_id"
+                ]
+
+            )
+
+            db.session.add(
+                timetable_entry
+            )
+
+            if first_department is None:
+
+                first_department = entry[
+                    "department"
+                ]
+
+                first_semester = entry[
+                    "semester"
+                ]
+
+                first_section = entry[
+                    "section"
+                ]
+
+            created_count += 1
+
+        # =====================================================
+        # SINGLE COMMIT
+        # =====================================================
+
         db.session.commit()
 
         # =====================================================
@@ -984,10 +1405,26 @@ def generate_timetable():
         print("==========================================")
         print("TIMETABLE GENERATED SUCCESSFULLY")
         print("==========================================")
-        print("Classes Created:", created_count)
-        print("Department:", first_department)
-        print("Semester:", first_semester)
-        print("Section:", first_section)
+        print(
+            "Old Classes Deleted:",
+            deleted_count
+        )
+        print(
+            "New Classes Created:",
+            created_count
+        )
+        print(
+            "Department:",
+            first_department
+        )
+        print(
+            "Semester:",
+            first_semester
+        )
+        print(
+            "Section:",
+            first_section
+        )
         print("==========================================")
         print()
 
@@ -1001,7 +1438,7 @@ def generate_timetable():
         )
 
         # =====================================================
-        # REDIRECT TO FIRST TIMETABLE
+        # REDIRECT
         # =====================================================
 
         return redirect(
@@ -1028,7 +1465,14 @@ def generate_timetable():
         print("==========================================")
         print("TIMETABLE GENERATION ERROR")
         print("==========================================")
-        print(str(e))
+        print(
+            "ERROR TYPE:",
+            type(e).__name__
+        )
+        print(
+            "ERROR:",
+            str(e)
+        )
         print("==========================================")
         print()
 

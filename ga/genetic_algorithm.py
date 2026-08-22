@@ -531,8 +531,8 @@ class GeneticAlgorithm:
 
                     section_key = (
                         allocation.department_id,
-                        allocation.semester,
-                        allocation.section,
+                        allocation.semester_id,
+                        allocation.section_id,
                         day
                     )
 
@@ -663,19 +663,15 @@ class GeneticAlgorithm:
             ) > 1:
 
                 key = (
-
                     lecture.get(
                         "department_id"
                     ),
-
                     lecture.get(
-                        "semester"
+                        "semester_id"
                     ),
-
                     lecture.get(
-                        "section"
+                        "section_id"
                     ),
-
                     lecture.get(
                         "day"
                     )
@@ -1161,13 +1157,17 @@ class GeneticAlgorithm:
         # Must return the COMPLETE block
         return lectures
 
-    def build_lecture(self, allocation, slot):
-
-        # ==========================================
-        # FIND AN AVAILABLE ROOM
-        # ==========================================
+    def build_lecture(
+        self,
+        allocation,
+        slot
+    ):
+        # =====================================================
+        # FIND AVAILABLE ROOM
+        # =====================================================
 
         room_id = None
+        classroom_obj = None
 
         for classroom in self.classrooms:
 
@@ -1177,39 +1177,20 @@ class GeneticAlgorithm:
             ):
 
                 room_id = classroom.id
-
+                classroom_obj = classroom
                 break
 
-        # No room available
         if room_id is None:
 
             return None
 
-        # ==========================================
-        # SAFE ALLOCATION VALUES
-        # ==========================================
+        # =====================================================
+        # GET OBJECTS
+        # =====================================================
 
-        allocation_id = getattr(
+        department = getattr(
             allocation,
-            "id",
-            None
-        )
-
-        subject_id = getattr(
-            allocation,
-            "subject_id",
-            None
-        )
-
-        faculty_id = getattr(
-            allocation,
-            "faculty_id",
-            None
-        )
-
-        department_id = getattr(
-            allocation,
-            "department_id",
+            "department",
             None
         )
 
@@ -1225,50 +1206,232 @@ class GeneticAlgorithm:
             None
         )
 
-        # ==========================================
+        subject = getattr(
+            allocation,
+            "subject",
+            None
+        )
+
+        faculty = getattr(
+            allocation,
+            "faculty",
+            None
+        )
+
+        # =====================================================
+        # DISPLAY VALUES
+        # =====================================================
+
+        department_name = getattr(
+            department,
+            "department_name",
+            getattr(
+                department,
+                "name",
+                ""
+            )
+        )
+
+        semester_value = getattr(
+            semester,
+            "semester",
+            semester
+        )
+
+        section_name = getattr(
+            section,
+            "section_name",
+            getattr(
+                section,
+                "name",
+                ""
+            )
+        )
+
+        subject_name = getattr(
+            subject,
+            "subject_name",
+            getattr(
+                subject,
+                "name",
+                ""
+            )
+        )
+
+        faculty_name = getattr(
+            faculty,
+            "faculty_name",
+            getattr(
+                faculty,
+                "name",
+                ""
+            )
+        )
+
+        # =====================================================
         # BUILD LECTURE
-        # ==========================================
+        # =====================================================
 
         lecture = {
 
-            # IDs
-            "allocation_id": allocation_id,
-
-            "subject_id": subject_id,
-
-            "faculty_id": faculty_id,
-
-            "room_id": room_id,
-
-            "classroom_id": room_id,
-
-            "timeslot_id": slot.id,
-
-            # Department
-            "department_id": department_id,
-
-            "department": department_id,
-
-            # Class information
-            "semester": semester,
-
-            "section": section,
-
-            # Time information
-            "day": slot.day,
-
-            "period": slot.period,
-
-            # Class type
-            "lecture_type": getattr(
-                allocation,
-                "lecture_type",
+            "allocation_id":
                 getattr(
                     allocation,
-                    "class_type",
+                    "id",
                     None
+                ),
+
+            "subject_id":
+                getattr(
+                    allocation,
+                    "subject_id",
+                    None
+                ),
+
+            "faculty_id":
+                getattr(
+                    allocation,
+                    "faculty_id",
+                    None
+                ),
+
+            "room_id":
+                room_id,
+
+            "classroom_id":
+                room_id,
+
+            "timeslot_id":
+                slot.id,
+
+            # IDs
+            "department_id":
+                getattr(
+                    allocation,
+                    "department_id",
+                    None
+                ),
+
+            "semester_id":
+                getattr(
+                    allocation,
+                    "semester_id",
+                    None
+                ),
+
+            "section_id":
+                getattr(
+                    allocation,
+                    "section_id",
+                    None
+                ),
+
+            # DISPLAY VALUES
+            "department":
+                str(
+                    department_name
+                ).strip(),
+
+            "semester":
+                int(
+                    semester_value
                 )
-            )
+                if semester_value
+                else 0,
+
+            "section":
+                str(
+                    section_name
+                ).strip(),
+
+            "subject":
+                str(
+                    subject_name
+                ).strip(),
+
+            "faculty":
+                str(
+                    faculty_name
+                ).strip(),
+
+            "room":
+                str(
+                    getattr(
+                        classroom_obj,
+                        "room_number",
+                        getattr(
+                            classroom_obj,
+                            "room_name",
+                            ""
+                        )
+                    )
+                ).strip(),
+
+            # TIME
+            "day":
+                slot.day,
+
+            "period":
+                slot.period,
+
+            "start_time":
+                slot.start_time,
+
+            "end_time":
+                slot.end_time,
+
+            "session":
+                getattr(
+                    slot,
+                    "session",
+                    "Teaching"
+                ),
+
+            # TYPE
+            "lecture_type":
+                getattr(
+                    allocation,
+                    "lecture_type",
+                    getattr(
+                        allocation,
+                        "class_type",
+                        None
+                    )
+                ),
+
+            "type":
+                getattr(
+                    allocation,
+                    "subject_type",
+                    "Theory"
+                ),
+
+            "subject_type":
+                getattr(
+                    allocation,
+                    "subject_type",
+                    "Theory"
+                ),
+
+            "required_hours":
+                getattr(
+                    allocation,
+                    "weekly_hours",
+                    1
+                ),
+
+            "consecutive_hours":
+                max(
+                    1,
+                    int(
+                        getattr(
+                            allocation,
+                            "consecutive_hours",
+                            1
+                        )
+                        or 1
+                    )
+                )
         }
 
         return lecture
@@ -1279,19 +1442,13 @@ class GeneticAlgorithm:
         slot
     ):
 
-        slot_key = (
+        room_key = (
+            room_id,
             slot.day,
             slot.period
         )
 
-        # Check whether room is already occupied
-        if slot_key in self.room_schedule:
-
-            if room_id in self.room_schedule[slot_key]:
-
-                return False
-
-        return True
+        return room_key not in self.room_schedule
 
     def is_slot_available(
         self,
@@ -1299,32 +1456,23 @@ class GeneticAlgorithm:
         slot
     ):
         """
-        Check all hard constraints before placing a lecture.
+        Check all hard constraints before placing one lecture.
 
-        Returns True only when:
-        - Slot is not already used by the same section
-        - Faculty has no clash
-        - Faculty is available
-        - A classroom is available
+        Checks:
+        - section clash
+        - faculty clash
+        - faculty availability
+        - classroom availability
         """
 
-        # ==========================================
-        # GET SLOT IDENTIFIERS
-        # ==========================================
-
-        slot_id = slot.id
-
-        day = slot.day
-
-        # ==========================================
-        # GET ALLOCATION INFORMATION
-        # ==========================================
-
-        faculty_id = getattr(
-            allocation,
-            "faculty_id",
-            None
+        slot_key = (
+            slot.day,
+            slot.period
         )
+
+        # =====================================================
+        # IDENTIFIERS
+        # =====================================================
 
         department_id = getattr(
             allocation,
@@ -1332,131 +1480,78 @@ class GeneticAlgorithm:
             None
         )
 
-        semester = getattr(
+        semester_id = getattr(
             allocation,
-            "semester",
+            "semester_id",
             None
         )
 
-        section = getattr(
+        section_id = getattr(
             allocation,
-            "section",
+            "section_id",
             None
         )
-
-        # ==========================================
-        # 1. CHECK SECTION CLASH
-        # ==========================================
 
         section_key = (
             department_id,
-            semester,
-            section,
-            slot_id
+            semester_id,
+            section_id
         )
 
-        if section_key in self.used_slots:
+        slot_key = (
+            slot.day,
+            slot.period
+        )
+
+        if (
+            section_key in self.used_slots
+            and slot_key in self.used_slots[section_key]
+        ):
 
             return False
 
-        # ==========================================
-        # 2. CHECK FACULTY CLASH
-        # ==========================================
+        # =========================================================
+        # CHECK FACULTY CLASH
+        # =========================================================
 
-        if faculty_id is not None:
+        faculty_id = getattr(
+            allocation,
+            "faculty_id",
+            None
+        )
 
-            faculty_key = (
-                faculty_id,
-                slot_id
-            )
+        faculty_key = (
+            faculty_id,
+            slot.day,
+            slot.period
+        )
 
-            if faculty_key in self.faculty_schedule:
+        if faculty_key in self.faculty_schedule:
 
-                return False
+            return False
 
-        # ==========================================
-        # 3. CHECK FACULTY AVAILABILITY
-        # ==========================================
+        # =========================================================
+        # CHECK ROOM CLASH
+        # =========================================================
 
-        if hasattr(
-            self,
-            "faculty_availability"
-        ):
+        room_available = False
 
-            availability = self.faculty_availability
+        for classroom in self.classrooms:
 
-            if faculty_id is not None:
+            if self.is_room_available(
+                classroom.id,
+                slot
+            ):
 
-                # Try common availability formats
-                faculty_slots = availability.get(
-                    faculty_id
-                )
+                room_available = True
+                break
 
-                if faculty_slots is not None:
+        if not room_available:
 
-                    if isinstance(
-                        faculty_slots,
-                        (list, set, tuple)
-                    ):
-
-                        if slot_id not in faculty_slots:
-
-                            return False
-
-        # ==========================================
-        # SLOT IS AVAILABLE
-        # ==========================================
+            return False
 
         return True
 
-    def register_lecture(self, lecture):
-
-        slot_key = (
-            lecture["day"],
-            lecture["period"]
-        )
-
-        faculty_id = lecture["faculty_id"]
-
-        room_id = lecture["room_id"]
-
-        allocation_id = lecture["allocation_id"]
-
-        # ---------------------------------------------
-        # USED SLOT
-        # ---------------------------------------------
-
-        if allocation_id not in self.used_slots:
-
-            self.used_slots[allocation_id] = []
-
-        self.used_slots[allocation_id].append(
-            slot_key
-        )
-
-        # ---------------------------------------------
-        # FACULTY SCHEDULE
-        # ---------------------------------------------
-
-        if faculty_id not in self.faculty_schedule:
-
-            self.faculty_schedule[faculty_id] = set()
-
-        self.faculty_schedule[faculty_id].add(
-            slot_key
-        )
-
-        # ---------------------------------------------
-        # ROOM SCHEDULE
-        # ---------------------------------------------
-
-        if slot_key not in self.room_schedule:
-
-            self.room_schedule[slot_key] = set()
-
-        self.room_schedule[slot_key].add(
-            room_id
-        )
     # =========================================================
     # CREATE CONSECUTIVE LECTURES
     # =========================================================
@@ -1766,55 +1861,178 @@ class GeneticAlgorithm:
                     room_key
                 )
 
+        # =========================================================
+        # VALIDATE LAB BLOCKS
+        # =========================================================
+
+        from collections import defaultdict
+
+        allocation_lectures = defaultdict(list)
+
+        for lecture in timetable:
+
+            allocation_id = lecture.get(
+                "allocation_id"
+            )
+
+            allocation_lectures[
+                allocation_id
+            ].append(
+                lecture
+            )
+
+        for allocation in self.allocations:
+
+            allocation_id = getattr(
+                allocation,
+                "id",
+                None
+            )
+
+            consecutive_hours = max(
+                1,
+                int(
+                    getattr(
+                        allocation,
+                        "consecutive_hours",
+                        1
+                    )
+                )
+            )
+
+            # Theory subject
+            if consecutive_hours <= 1:
+
+                continue
+
+            lectures = allocation_lectures.get(
+                allocation_id,
+                []
+            )
+
+            # Group lectures by day
+            lectures_by_day = defaultdict(list)
+
+            for lecture in lectures:
+
+                lectures_by_day[
+                    lecture.get("day")
+                ].append(
+                    lecture
+                )
+
+            # Every lab occurrence must form
+            # a complete consecutive block
+            for day, day_lectures in lectures_by_day.items():
+
+                periods = sorted(
+                    lecture.get("period")
+                    for lecture in day_lectures
+                )
+
+                # Number of lectures on this day
+                if len(periods) != consecutive_hours:
+
+                    return False
+
+                # Check consecutive periods
+                for i in range(
+                    len(periods) - 1
+                ):
+
+                    if (
+                        periods[i + 1]
+                        != periods[i] + 1
+                    ):
+
+                        return False
+
+                # Check actual time continuity
+                sorted_lectures = sorted(
+                    day_lectures,
+                    key=lambda lecture:
+                        lecture.get("period")
+                )
+
+                for i in range(
+                    len(sorted_lectures) - 1
+                ):
+
+                    current_lecture = (
+                        sorted_lectures[i]
+                    )
+
+                    next_lecture = (
+                        sorted_lectures[i + 1]
+                    )
+
+                    if (
+                        str(
+                            current_lecture.get(
+                                "end_time"
+                            )
+                        ).strip()
+                        !=
+                        str(
+                            next_lecture.get(
+                                "start_time"
+                            )
+                        ).strip()
+                    ):
+
+                        return False
+
+                # Same room for complete lab block
+                rooms = {
+
+                    lecture.get("room_id")
+
+                    for lecture in day_lectures
+
+                }
+
+                if len(rooms) != 1:
+
+                    return False
         return True
 
-    def unregister_lecture(self, lecture):
+    # =========================================================
+    # REGISTER LECTURE
+    # =========================================================
 
-        day = lecture.get("day")
+    def register_lecture(self, lecture):
 
-        period = lecture.get("period")
+        day = lecture["day"]
+        period = lecture["period"]
 
-        faculty_id = lecture.get(
-            "faculty_id"
-        )
+        faculty_id = lecture["faculty_id"]
+        room_id = lecture["room_id"]
 
-        classroom_id = lecture.get(
-            "classroom_id"
-        )
+        department_id = lecture["department_id"]
+        semester_id = lecture.get("semester_id")
+        section_id = lecture.get("section_id")
 
-        department_id = lecture.get(
-            "department_id"
-        )
-
-        semester = lecture.get(
-            "semester"
-        )
-
-        section = lecture.get(
-            "section"
-        )
-
-        # =================================================
-        # REMOVE SECTION OCCUPANCY
-        # =================================================
+        # =====================================================
+        # SECTION OCCUPANCY
+        # =====================================================
 
         section_key = (
             department_id,
-            semester,
-            section,
-            day,
-            period
+            semester_id,
+            section_id
         )
 
-        if section_key in self.used_slots:
+        if section_key not in self.used_slots:
 
-            del self.used_slots[
-                section_key
-            ]
+            self.used_slots[section_key] = set()
 
-        # =================================================
-        # REMOVE FACULTY OCCUPANCY
-        # =================================================
+        self.used_slots[section_key].add(
+            (day, period)
+        )
+
+        # =====================================================
+        # FACULTY OCCUPANCY
+        # =====================================================
 
         faculty_key = (
             faculty_id,
@@ -1822,27 +2040,113 @@ class GeneticAlgorithm:
             period
         )
 
-        if faculty_key in self.faculty_schedule:
+        self.faculty_schedule[
+            faculty_key
+        ] = True
 
-            del self.faculty_schedule[
-                faculty_key
-            ]
-
-        # =================================================
-        # REMOVE ROOM OCCUPANCY
-        # =================================================
+        # =====================================================
+        # ROOM OCCUPANCY
+        # =====================================================
 
         room_key = (
-            classroom_id,
+            room_id,
             day,
             period
         )
 
-        if room_key in self.room_schedule:
+        self.room_schedule[
+            room_key
+        ] = True
 
-            del self.room_schedule[
-                room_key
-            ]
+    # =========================================================
+    # UNREGISTER LECTURE
+    # =========================================================
+
+    def unregister_lecture(self, lecture):
+
+        day = lecture.get("day")
+        period = lecture.get("period")
+
+        faculty_id = lecture.get("faculty_id")
+        room_id = lecture.get(
+            "room_id",
+            lecture.get("classroom_id")
+        )
+
+        department_id = lecture.get(
+            "department_id"
+        )
+
+        semester_id = lecture.get(
+            "semester_id"
+        )
+
+        section_id = lecture.get(
+            "section_id"
+        )
+
+        # =====================================================
+        # REMOVE SECTION OCCUPANCY
+        # =====================================================
+
+        section_key = (
+            department_id,
+            semester_id,
+            section_id
+        )
+
+        slot_key = (
+            day,
+            period
+        )
+
+        if section_key in self.used_slots:
+
+            self.used_slots[
+                section_key
+            ].discard(
+                slot_key
+            )
+
+            # Remove empty section entry
+            if not self.used_slots[
+                section_key
+            ]:
+
+                del self.used_slots[
+                    section_key
+                ]
+
+        # =====================================================
+        # REMOVE FACULTY OCCUPANCY
+        # =====================================================
+
+        faculty_key = (
+            faculty_id,
+            day,
+            period
+        )
+
+        self.faculty_schedule.pop(
+            faculty_key,
+            None
+        )
+
+        # =====================================================
+        # REMOVE ROOM OCCUPANCY
+        # =====================================================
+
+        room_key = (
+            room_id,
+            day,
+            period
+        )
+
+        self.room_schedule.pop(
+            room_key,
+            None
+        )
+
     # =========================================================
     # INITIALIZE POPULATION
     # =========================================================
@@ -1853,14 +2157,24 @@ class GeneticAlgorithm:
 
         attempts = 0
 
-        max_attempts = self.population_size * 20
+        max_attempts = (
+            self.population_size * 20
+        )
 
         while (
-            len(population) < self.population_size
-            and attempts < max_attempts
+
+            len(population)
+            < self.population_size
+
+            and
+
+            attempts < max_attempts
+
         ):
 
-            timetable = self.create_random_timetable()
+            timetable = (
+                self.create_random_timetable()
+            )
 
             # Reject incomplete timetable
             if not timetable:
@@ -1868,13 +2182,27 @@ class GeneticAlgorithm:
                 attempts += 1
                 continue
 
+            # -----------------------------------------
+            # CREATE CHROMOSOME
+            # -----------------------------------------
+
             chromosome = Chromosome(
                 timetable
             )
 
-            chromosome.calculate_fitness(
-                fitness
+            # -----------------------------------------
+            # CALCULATE FITNESS
+            # -----------------------------------------
+
+            chromosome.fitness = (
+                self.calculate_fitness(
+                    chromosome.timetable
+                )
             )
+
+            # -----------------------------------------
+            # ADD TO POPULATION
+            # -----------------------------------------
 
             population.append(
                 chromosome
@@ -1925,64 +2253,65 @@ class GeneticAlgorithm:
         parent1,
         parent2
     ):
-        """
-        Combines two parent timetables.
-        """
 
-        if not parent1.timetable:
+        import random
+        import copy
 
-            return Chromosome(
+        child_timetable = []
+
+        # Get every allocation
+        allocation_ids = [
+
+            allocation.id
+
+            for allocation
+            in self.allocations
+        ]
+
+        for allocation_id in allocation_ids:
+
+            # Randomly choose one parent
+            if random.random() < 0.5:
+
+                selected_parent = parent1
+
+            else:
+
+                selected_parent = parent2
+
+            # Get ALL lectures belonging
+            # to this allocation
+            allocation_lectures = [
+
+                lecture
+
+                for lecture
+                in selected_parent.timetable
+
+                if lecture.get(
+                    "allocation_id"
+                )
+                == allocation_id
+            ]
+
+            child_timetable.extend(
+
                 copy.deepcopy(
-                    parent2.timetable
+                    allocation_lectures
                 )
             )
 
-        if not parent2.timetable:
-
-            return Chromosome(
-                copy.deepcopy(
-                    parent1.timetable
-                )
-            )
-
-        minimum_length = min(
-            len(parent1.timetable),
-            len(parent2.timetable)
-        )
-
-        if minimum_length < 2:
-
-            return Chromosome(
-                copy.deepcopy(
-                    parent1.timetable
-                )
-            )
-
-        split = random.randint(
-            1,
-            minimum_length - 1
-        )
-
-        child_timetable = (
-
-            copy.deepcopy(
-                parent1.timetable[
-                    :split
-                ]
-            )
-
-            +
-
-            copy.deepcopy(
-                parent2.timetable[
-                    split:
-                ]
-            )
-        )
-
-        return Chromosome(
+        child = Chromosome(
             child_timetable
         )
+
+        child.fitness = (
+            self.calculate_fitness(
+                child.timetable
+            )
+        )
+
+        return child
 
     # =========================================================
     # MUTATION
@@ -2015,6 +2344,26 @@ class GeneticAlgorithm:
             return chromosome
 
         for lecture in chromosome.timetable:
+
+            consecutive_hours = max(
+                1,
+                int(
+                    lecture.get(
+                        "consecutive_hours",
+                        1
+                    )
+                )
+            )
+
+            # ==========================================
+            # DO NOT MUTATE ONE PIECE OF A LAB
+            #
+            # Lab blocks must be moved as a group.
+            # ==========================================
+
+            if consecutive_hours > 1:
+
+                continue
 
             # ---------------------------------------------
             # TIME SLOT MUTATION
@@ -2192,8 +2541,10 @@ class GeneticAlgorithm:
 
                         lecture["room_type"] = room.room_type
 
-        chromosome.calculate_fitness(
-            fitness
+        chromosome.fitness = (
+            self.calculate_fitness(
+                chromosome.timetable
+            )
         )
 
         return chromosome
@@ -2338,78 +2689,68 @@ class GeneticAlgorithm:
         self,
         timetable
     ):
-        """
-        Calculate timetable fitness.
-
-        Higher score = better timetable.
-
-        Hard constraint violations receive
-        very large penalties.
-        """
 
         if not timetable:
+
             return -1000000
 
-        fitness = 1000
+        fitness = 0
 
-        # ==========================================
-        # TRACK OCCUPIED RESOURCES
-        # ==========================================
+        section_slots = set()
+        faculty_slots = set()
+        room_slots = set()
 
-        section_slots = {}
+        allocation_counts = {}
 
-        faculty_slots = {}
+        classes_per_day = {}
 
-        room_slots = {}
+        subject_day_count = {}
 
-        # ==========================================
-        # CHECK EACH LECTURE
-        # ==========================================
+        # =================================================
+        # HARD CONSTRAINTS
+        # =================================================
 
         for lecture in timetable:
 
-            try:
+            department = lecture.get(
+                "department"
+            )
 
-                day = lecture.get(
-                    "day"
-                )
+            semester = lecture.get(
+                "semester"
+            )
 
-                period = lecture.get(
-                    "period"
-                )
+            section = lecture.get(
+                "section"
+            )
 
-                department = lecture.get(
-                    "department"
-                )
+            faculty = lecture.get(
+                "faculty"
+            )
 
-                semester = lecture.get(
-                    "semester"
-                )
+            room = lecture.get(
+                "room"
+            )
 
-                section = lecture.get(
-                    "section"
-                )
+            day = lecture.get(
+                "day"
+            )
 
-                faculty = lecture.get(
-                    "faculty"
-                )
+            period = lecture.get(
+                "period"
+            )
 
-                room = lecture.get(
-                    "room"
-                )
+            allocation_id = lecture.get(
+                "allocation_id"
+            )
 
-                allocation_id = lecture.get(
-                    "allocation_id"
-                )
+            subject = lecture.get(
+                "subject"
+            )
 
-            except AttributeError:
-
-                # Invalid lecture structure
-                return -1000000
-
-            # ======================================
+            # ---------------------------------------------
             # SECTION CLASH
-            # ======================================
+            # ---------------------------------------------
 
             section_key = (
                 department,
@@ -2425,11 +2766,13 @@ class GeneticAlgorithm:
 
             else:
 
-                section_slots[section_key] = True
+                section_slots.add(
+                    section_key
+                )
 
-            # ======================================
+            # ---------------------------------------------
             # FACULTY CLASH
-            # ======================================
+            # ---------------------------------------------
 
             faculty_key = (
                 faculty,
@@ -2443,11 +2786,13 @@ class GeneticAlgorithm:
 
             else:
 
-                faculty_slots[faculty_key] = True
+                faculty_slots.add(
+                    faculty_key
+                )
 
-            # ======================================
+            # ---------------------------------------------
             # ROOM CLASH
-            # ======================================
+            # ---------------------------------------------
 
             room_key = (
                 room,
@@ -2461,19 +2806,13 @@ class GeneticAlgorithm:
 
             else:
 
-                room_slots[room_key] = True
+                room_slots.add(
+                    room_key
+                )
 
-        # ==========================================
-        # CHECK REQUIRED HOURS
-        # ==========================================
-
-        allocation_counts = {}
-
-        for lecture in timetable:
-
-            allocation_id = lecture.get(
-                "allocation_id"
-            )
+            # ---------------------------------------------
+            # COUNT ALLOCATION HOURS
+            # ---------------------------------------------
 
             allocation_counts[
                 allocation_id
@@ -2485,23 +2824,56 @@ class GeneticAlgorithm:
                 + 1
             )
 
-        for allocation in self.allocations:
+            # ---------------------------------------------
+            # CLASSES PER DAY
+            # ---------------------------------------------
 
-            allocation_id = getattr(
-                allocation,
-                "id",
-                None
+            day_key = (
+                department,
+                semester,
+                section,
+                day
             )
 
-            required_hours = max(
-                1,
-                int(
-                    getattr(
-                        allocation,
-                        "weekly_hours",
-                        1
-                    )
+            classes_per_day[
+                day_key
+            ] = (
+                classes_per_day.get(
+                    day_key,
+                    0
                 )
+                + 1
+            )
+
+            # ---------------------------------------------
+            # SAME SUBJECT PER DAY
+            # ---------------------------------------------
+
+            subject_day_key = (
+                allocation_id,
+                day
+            )
+
+            subject_day_count[
+                subject_day_key
+            ] = (
+                subject_day_count.get(
+                    subject_day_key,
+                    0
+                )
+                + 1
+            )
+
+        # =================================================
+        # REQUIRED HOURS
+        # =================================================
+
+        for allocation in self.allocations:
+
+            allocation_id = allocation.id
+
+            required_hours = int(
+                allocation.weekly_hours
             )
 
             actual_hours = allocation_counts.get(
@@ -2509,41 +2881,73 @@ class GeneticAlgorithm:
                 0
             )
 
-            # Missing or extra classes are hard failures
             if actual_hours != required_hours:
 
+                difference = abs(
+                    required_hours
+                    - actual_hours
+                )
+
+                fitness -= difference * 10000
+
+            else:
+
+                fitness += 100
+
+        # =================================================
+        # SOFT CONSTRAINT:
+        # PENALIZE TOO MANY CLASSES ON ONE DAY
+        # =================================================
+
+        for count in classes_per_day.values():
+
+            if count > 5:
+
                 fitness -= (
-                    abs(
-                        required_hours
-                        - actual_hours
-                    )
-                    * 10000
-                )
+                    count - 5
+                ) * 20
 
-        # ==========================================
-        # REWARD COMPLETE TIMETABLE
-        # ==========================================
+            else:
 
-        expected_classes = sum(
-            max(
-                1,
-                int(
-                    getattr(
-                        allocation,
-                        "weekly_hours",
-                        1
-                    )
-                )
-            )
-            for allocation in self.allocations
-        )
+                fitness += 10
 
-        if len(timetable) == expected_classes:
+        # =================================================
+        # SOFT CONSTRAINT:
+        # PENALIZE SAME SUBJECT TOO MANY TIMES A DAY
+        # =================================================
 
-            fitness += 1000
+        for count in subject_day_count.values():
+
+            if count > 2:
+
+                fitness -= (
+                    count - 2
+                ) * 30
 
         return fitness
 
+    def select_parent(
+        self,
+        scored_population,
+        tournament_size=3
+    ):
+
+        import random
+
+        tournament = random.sample(
+            scored_population,
+            min(
+                tournament_size,
+                len(scored_population)
+            )
+        )
+
+        tournament.sort(
+            key=lambda x: x[0],
+            reverse=True
+        )
+
+        return tournament[0][1]
     # =========================================================
     # RUN GENETIC ALGORITHM
     # =========================================================
@@ -2568,18 +2972,7 @@ class GeneticAlgorithm:
         # CREATE INITIAL POPULATION
         # ======================================
 
-        while (
-            len(population) < self.population_size
-            and attempts < max_attempts
-        ):
-
-            timetable = self.create_random_timetable()
-
-            if timetable is not None:
-
-                population.append(timetable)
-
-            attempts += 1
+        population = self.initialize_population()
 
         if not population:
 
@@ -2589,101 +2982,201 @@ class GeneticAlgorithm:
 
             return []
 
+        # ======================================
+        # INITIALIZE BEST SOLUTION
+        # ======================================
+
         best_timetable = None
+
         best_fitness = float("-inf")
 
         # ======================================
         # GENERATIONS
         # ======================================
 
-        for generation in range(self.generations):
+        for generation in range(
+            self.generations
+        ):
 
-            scored_population = []
+            # ----------------------------------
+            # CALCULATE FITNESS
+            # ----------------------------------
 
-            for timetable in population:
+            for chromosome in population:
 
-                fitness = self.calculate_fitness(
-                    timetable
-                )
-
-                scored_population.append(
-                    (
-                        fitness,
-                        timetable
+                chromosome.fitness = (
+                    self.calculate_fitness(
+                        chromosome.timetable
                     )
                 )
 
-            scored_population.sort(
-                key=lambda x: x[0],
+            # ----------------------------------
+            # SORT POPULATION
+            # ----------------------------------
+
+            population.sort(
+
+                key=lambda chromosome:
+                    chromosome.fitness,
+
                 reverse=True
             )
 
-            current_best_fitness = (
-                scored_population[0][0]
-            )
-
-            current_best_timetable = (
-                scored_population[0][1]
-            )
+            current_best = population[0]
 
             print(
+
                 f"Generation "
-                f"{generation + 1}/{self.generations} "
+                f"{generation + 1}/"
+                f"{self.generations} "
                 f"| Best Fitness = "
-                f"{current_best_fitness}"
+                f"{current_best.fitness}"
             )
 
-            if current_best_fitness > best_fitness:
+            # ----------------------------------
+            # SAVE GLOBAL BEST
+            # ----------------------------------
 
-                best_fitness = current_best_fitness
+            if (
 
-                best_timetable = current_best_timetable
+                current_best.fitness
+                > best_fitness
 
-            # ==================================
-            # ELITISM
-            # ==================================
+            ):
 
-            new_population = []
+                best_fitness = (
+                    current_best.fitness
+                )
 
-            elite_count = min(
-                2,
-                len(scored_population)
-            )
-
-            for i in range(elite_count):
-
-                new_population.append(
-                    scored_population[i][1]
+                best_timetable = (
+                    copy.deepcopy(
+                        current_best.timetable
+                    )
                 )
 
             # ==================================
             # CREATE NEXT GENERATION
             # ==================================
 
-            while (
-                len(new_population)
-                < self.population_size
-            ):
+            new_population = []
 
-                timetable = (
-                    self.create_random_timetable()
+            # ----------------------------------
+            # ELITISM
+            # ----------------------------------
+
+            elite_count = min(
+                2,
+                len(population)
+            )
+
+            for i in range(elite_count):
+
+                new_population.append(
+
+                    copy.deepcopy(
+                        population[i]
+                    )
                 )
 
-                if timetable is not None:
+            # ----------------------------------
+            # SELECTION
+            # ----------------------------------
 
-                    new_population.append(
-                        timetable
+            parents = self.selection(
+                population
+            )
+
+            # ----------------------------------
+            # CROSSOVER + MUTATION
+            # ----------------------------------
+
+            attempts = 0
+
+            max_attempts = (
+                self.population_size * 20
+            )
+
+            while (
+
+                len(new_population)
+                < self.population_size
+
+                and
+
+                attempts < max_attempts
+
+            ):
+
+                parent1 = random.choice(
+                    parents
+                )
+
+                parent2 = random.choice(
+                    parents
+                )
+
+                # Ensure different parents
+                if (
+
+                    len(parents) > 1
+
+                    and
+
+                    parent1 is parent2
+
+                ):
+
+                    continue
+
+                # ------------------------------
+                # CROSSOVER
+                # ------------------------------
+
+                child = self.crossover(
+                    parent1,
+                    parent2
+                )
+
+                # ------------------------------
+                # MUTATION
+                # ------------------------------
+
+                child = self.mutation(
+                    child
+                )
+
+                if not self.validate_complete_timetable(
+                    child.timetable
+                ):
+                    attempts += 1
+                    continue
+                # ------------------------------
+                # RECALCULATE FITNESS
+                # ------------------------------
+
+                child.fitness = (
+                    self.calculate_fitness(
+                        child.timetable
                     )
+                )
 
-                else:
+                # ------------------------------
+                # ADD CHILD
+                # ------------------------------
 
-                    break
+                new_population.append(
+                    child
+                )
 
-            if not new_population:
+                attempts += 1
 
-                break
+            # ----------------------------------
+            # REPLACE POPULATION
+            # ----------------------------------
 
-            population = new_population
+            if new_population:
+
+                population = new_population
 
         # ======================================
         # FINAL RESULT
