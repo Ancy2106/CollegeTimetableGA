@@ -1,19 +1,29 @@
+import os
 from urllib.parse import quote_plus
 
 
 class Config:
+    SECRET_KEY = os.environ.get(
+        "SECRET_KEY",
+        "college-timetable-secret-key"
+    )
 
-    SECRET_KEY = "college-timetable-secret-key"
-
-    DB_USERNAME = "root"
-    DB_PASSWORD = quote_plus("Ancy*2106")
-    DB_HOST = "localhost"
-    DB_PORT = 3306
-    DB_NAME = "college_timetable"
+    DB_USERNAME = os.environ.get("DB_USERNAME", "root")
+    DB_PASSWORD = os.environ.get("DB_PASSWORD", "")
+    DB_HOST = os.environ.get("DB_HOST", "localhost")
+    DB_PORT = os.environ.get("DB_PORT", "3306")
+    DB_NAME = os.environ.get("DB_NAME", "college_timetable")
 
     SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{DB_USERNAME}:{DB_PASSWORD}"
+        f"mysql+pymysql://"
+        f"{quote_plus(DB_USERNAME)}:{quote_plus(DB_PASSWORD)}"
         f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
+
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "connect_args": {
+            "ssl": {}
+        }
+    }
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
