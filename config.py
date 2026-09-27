@@ -20,4 +20,14 @@ class Config:
         f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
 
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "pool_size": 2,
+        "max_overflow": 0,
+        "connect_args": {
+            "ssl": {}
+        }
+    }
+
     SQLALCHEMY_TRACK_MODIFICATIONS = False
