@@ -533,9 +533,9 @@ def generate_timetable():
 
             availability=availability,
 
-            population_size=30,
+            population_size=10,
 
-            generations=100,
+            generations=30,
 
             mutation_rate=0.10
         )
