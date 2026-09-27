@@ -10,10 +10,10 @@ class GeneticAlgorithm:
     Genetic Algorithm for College Timetable Generation.
 
     Default population:
-        30 chromosomes
+        10 chromosomes
 
     Default generations:
-        100
+        30
 
     Uses:
         SubjectAllocation
